@@ -55,7 +55,10 @@ const patchPet = async (updatedPet, id) => {
   return entity;
 };
 
-const deletePet = async () => {};
+const deletePet = async (id) => {
+  const key = datastore.key([PET, parseInt(id, 10)]);
+  await datastore.delete(key);
+};
 
 module.exports = {
   createPet,

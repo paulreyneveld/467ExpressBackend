@@ -112,4 +112,16 @@ petsRouter.patch('/:id', async (req, res) => {
   return res.status(200).json(result);
 });
 
+petsRouter.delete('/:id', async (req, res) => {
+  const pet = await getPet(req.params.id);
+  if (pet[0] === undefined || pet[0] === null) {
+    return res.status(404).json({
+      Error: 'No pet with this pet_id exists',
+    });
+  }
+
+  await deletePet(req.params.id);
+  return res.status(204).end();
+});
+
 module.exports = petsRouter;
