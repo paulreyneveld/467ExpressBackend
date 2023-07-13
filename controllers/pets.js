@@ -4,10 +4,11 @@ const petModel = require('../models/pet');
 const { createPet, getAllPets, getPet, putPet, patchPet, deletePet } = petModel;
 
 // TODO: GET all pets. Also look into pagination, filtering, and searching.
-petsRouter.get('/', (req, res) => {
-  res.send('testing pets route');
+petsRouter.get('/', async (req, res) => {
   // Admin: View all pets. Can add/edit/delete here.
   // Public: View all pets (read-only).
+  const pets = await getAllPets();
+  return res.json(pets);
 });
 
 // TODO: GET a pet.
