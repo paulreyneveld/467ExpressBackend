@@ -8,7 +8,7 @@ petsRouter.get('/', async (req, res) => {
   // Admin: View all pets. Can add/edit/delete here.
   // Public: View all pets (read-only).
   const pets = await getAllPets();
-  return res.json(pets);
+  return res.status(200).json(pets);
 });
 
 // TODO: GET a pet.
@@ -45,7 +45,7 @@ petsRouter.post('/', async (req, res) => {
 
   const result = entity.data;
   result.id = entity.key.id;
-  return res.json(result);
+  return res.status(201).json(result);
 });
 
 petsRouter.put('/:id', async (req, res) => {
@@ -72,7 +72,44 @@ petsRouter.put('/:id', async (req, res) => {
 
   const result = entity.data;
   result.id = entity.key.id;
-  return res.json(result);
+  return res.status(200).json(result);
+});
+
+petsRouter.patch('/:id', async (req, res) => {
+  const pet = await getPet(req.params.id);
+  if (pet[0] === undefined || pet[0] === null) {
+    return res.status(404).json({
+      Error: 'No pet with this pet_id exists',
+    });
+  }
+
+  const updatedPet = {
+    typeAnimal: req.body.typeAnimal ? req.body.typeAnimal : pet[0].typeAnimal,
+    breed: req.body.breed ? req.body.breed : pet[0].breed,
+    description: req.body.description
+      ? req.body.description
+      : pet[0].description,
+    images: req.body.images ? req.body.images : pet[0].images,
+    goodWithAnimals: req.body.goodWithAnimals
+      ? req.body.goodWithAnimals
+      : pet[0].goodWithAnimals,
+    goodWithChildren: req.body.goodWithChildren
+      ? req.body.goodWithChildren
+      : pet[0].goodWithChildren,
+    leashedAllTimes: req.body.leashedAllTimes
+      ? req.body.leashedAllTimes
+      : pet[0].leashedAllTimes,
+    availability: req.body.availability
+      ? req.body.availability
+      : pet[0].availability,
+    creationDate: pet.creationDate,
+  };
+
+  const entity = await putPet(updatedPet, req.params.id);
+
+  const result = entity.data;
+  result.id = entity.key.id;
+  return res.status(200).json(result);
 });
 
 module.exports = petsRouter;
