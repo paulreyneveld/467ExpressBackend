@@ -31,7 +31,17 @@ const getPet = async (id) => {
   return entity.map(ds.fromDatastore);
 };
 
-const putPet = async () => {};
+const putPet = async (updatedPet, id) => {
+  const key = datastore.key([PET, parseInt(id, 10)]);
+
+  const entity = {
+    key: key,
+    data: updatedPet,
+  };
+
+  await datastore.save(entity);
+  return entity;
+};
 
 const patchPet = async () => {};
 
