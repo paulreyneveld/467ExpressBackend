@@ -105,7 +105,7 @@ petsRouter.patch('/:id', async (req, res) => {
     creationDate: pet.creationDate,
   };
 
-  const entity = await putPet(updatedPet, req.params.id);
+  const entity = await patchPet(updatedPet, req.params.id);
 
   const result = entity.data;
   result.id = entity.key.id;
