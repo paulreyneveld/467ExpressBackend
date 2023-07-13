@@ -48,4 +48,31 @@ petsRouter.post('/', async (req, res) => {
   return res.json(result);
 });
 
+petsRouter.put('/:id', async (req, res) => {
+  const pet = await getPet(req.params.id);
+  if (pet[0] === undefined || pet[0] === null) {
+    return res.status(404).json({
+      Error: 'No pet with this pet_id exists',
+    });
+  }
+
+  const updatedPet = {
+    typeAnimal: req.body.typeAnimal,
+    breed: req.body.breed,
+    description: req.body.description,
+    images: req.body.images,
+    goodWithAnimals: req.body.goodWithAnimals,
+    goodWithChildren: req.body.goodWithChildren,
+    leashedAllTimes: req.body.leashedAllTimes,
+    availability: req.body.availability,
+    creationDate: pet.creationDate,
+  };
+
+  const entity = await putPet(updatedPet, req.params.id);
+
+  const result = entity.data;
+  result.id = entity.key.id;
+  return res.json(result);
+});
+
 module.exports = petsRouter;
