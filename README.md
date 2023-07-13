@@ -1,55 +1,15 @@
-# 467ExpressBackend
+# 
+# 467ExpressBackend OktaExample
 
-This is the backend application for the Pet Adoption Web Application.
+Test Authentication for protected routes running on http://localhost:3001
 
-## Prerequisites
-
-Before running the application, be sure to have the required dependencies installed on your machine:
-
-- [Docker](https://www.docker.com)
-
-## Getting Started
-
-To run this application locally:
-
-1. Clone the repository.
-
-2. Build the Docker image:
-
-```bash
-docker build -t pet-app .
-```
-
-3. Run the container based off the image:
-
-```bash
-docker run -p 3001:3001 pet-app
-```
-
-4. Access the application in the browser at `http://localhost:3001`.
-
-## Configuration
-
-WIP (environment variables, etc)
-
-## Development
-
-To set up the development environment, follow these steps in the root of the directory:
-
-1. Install dependencies:
-
-```bash
+Download Repo
 npm install
-```
+npm run start-local
 
-2. Start the application in development mode:
+Using Postman, visit the route endpoint for http://localhost:3001 with no authorization to see an open page.
+Using Postman, visit the route endpoint for http://localhost:3001 with an Authorization header:
 
-```bash
-npm run dev
-```
+Bearer eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCIsImtpZCI6IklMdlp2alRxalVOb0p5VDZFXzNUYiJ9.eyJpc3MiOiJodHRwczovLzQ2N29rdGFleGFtcGxlLnVzLmF1dGgwLmNvbS8iLCJzdWIiOiJ1ck1abFpDeWtWc3YycGlRb01oNU1hNEo1NnIxeFRLVkBjbGllbnRzIiwiYXVkIjoiaHR0cDovL2xvY2FsaG9zdDozMDAxIiwiaWF0IjoxNjg5MjE2NzI0LCJleHAiOjE2ODkzMDMxMjQsImF6cCI6InVyTVpsWkN5a1ZzdjJwaVFvTWg1TWE0SjU2cjF4VEtWIiwiZ3R5IjoiY2xpZW50LWNyZWRlbnRpYWxzIiwicGVybWlzc2lvbnMiOltdfQ.ltia8KHtNgHpWwconW5nksjOWUhrs-GSUqtJk9WL-lHchyqlNd1SPr2AKNM2kyK2F0yYok6a8SNsCatlZTnfbx9aElzZ4i9IXOrUFHVTjrsJPhdZiszMXiHi3vI6iOvt_xxHdC93N9SNCdqPYV0tOHACj3XSXqERGXFX1a6eUpKxgXcQW4ljkeufsj1p5thUyRB_Mdn40J1m2tUeTJak9S5SYVlXSN7DRmnK3zBy0K8Ofk4jk1Ruy-mokIL-4YVd925FIF5VgGAYA-G8uREeGlZmyFBxBSmUxA28fAltFX-oH1oLsZoOR6O_90R0tnsKYw6ATyfybbSU1O8mS9maog
 
-3. Access the application in the browser at `http://localhost:3001`.
-
-## Testing
-
-WIP
+To see a protected endpoint. 

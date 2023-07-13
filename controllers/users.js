@@ -1,18 +1,25 @@
 const usersRouter = require('express').Router();
 const userModel = require('../models/user');
+const { auth, requiredScopes } = require('express-oauth2-jwt-bearer');
 
 const { createUser, getAllUsers, getUser, putUser, patchUser, deleteUser } =
   userModel;
 
+const checkJwt = auth({
+  audience: 'http://localhost:3001',
+  issuerBaseURL: `https://467oktaexample.us.auth0.com/`,
+});
+
 // TODO: GET all users.
-usersRouter.get('/', (req, res) => {
-  res.send('testing users route');
+usersRouter.get('/', checkJwt, (req, res) => {
+  res.send('testing users route - authenticated');
   // Admin: Can view all accounts. Can edit/delete here.
   // Public: No access?
 });
 
 // TODO: READ a user.
-usersRouter.get('/:id', (req, res) => {
+usersRouter.get('/:id', checkJwt, (req, res) => {
+  res.send('testing individual user - authenticated');
   // Admin: Can retrieve any accounts (public or private).
   // Public: Can only retrieve publicly shown account details. Can also retrieve their own.
 });
