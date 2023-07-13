@@ -15,7 +15,11 @@ const createPet = async (newPet) => {
   return entity;
 };
 
-const getAllPets = async () => {};
+const getAllPets = async () => {
+  const q = datastore.createQuery(PET);
+  const entities = await datastore.runQuery(q);
+  return entities[0].map(ds.fromDatastore);
+};
 
 const getPet = async () => {};
 
