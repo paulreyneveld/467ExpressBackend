@@ -1,4 +1,8 @@
 const usersRouter = require('express').Router();
+const userModel = require('../models/user');
+
+const { createUser, getAllUsers, getUser, putUser, patchUser, deleteUser } =
+  userModel;
 
 // TODO: GET all users.
 usersRouter.get('/', (req, res) => {

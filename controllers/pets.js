@@ -1,4 +1,7 @@
 const petsRouter = require('express').Router();
+const petModel = require('../models/pet');
+
+const { getAllPets, getPet, putPet, patchPet, deletePet } = petModel;
 
 // TODO: GET all pets. Also look into pagination, filtering, and searching.
 petsRouter.get('/', (req, res) => {
