@@ -12,9 +12,17 @@ petsRouter.get('/', async (req, res) => {
 });
 
 // TODO: GET a pet.
-petsRouter.get('/:id', (req, res) => {
+petsRouter.get('/:id', async (req, res) => {
   // Admin: View a pet. Can edit/delete.
   // Public: View a pet. Can only adopt/cancel.
+  const pet = await getPet(req.params.id);
+  if (pet[0] === undefined || pet[0] === null) {
+    res.status(404).json({
+      Error: 'No pet with this pet_id exists',
+    });
+  } else {
+    res.status(200).json(pet[0]);
+  }
 });
 
 // TODO: CREATE a pet.
