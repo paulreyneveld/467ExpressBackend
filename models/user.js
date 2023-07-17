@@ -11,7 +11,15 @@ const getAllUsers = async () => {
   return entities[0].map(ds.fromDatastore);
 };
 
-const getUser = async () => {};
+const getUser = async (id) => {
+  const key = datastore.key([USER, parseInt(id, 10)]);
+  const entity = await datastore.get(key);
+  if (entity[0] === undefined || entity[0] === null) {
+    return entity;
+  }
+
+  return entity.map(ds.fromDatastore);
+};
 
 const putUser = async () => {};
 
