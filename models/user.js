@@ -5,7 +5,11 @@ const datastore = ds.datastore;
 
 const createUser = async () => {};
 
-const getAllUsers = async () => {};
+const getAllUsers = async () => {
+  const q = datastore.createQuery(USER);
+  const entities = await datastore.runQuery(q);
+  return entities[0].map(ds.fromDatastore);
+};
 
 const getUser = async (id) => {
   const key = datastore.key([USER, parseInt(id, 10)]);
