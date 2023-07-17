@@ -11,10 +11,18 @@ usersRouter.get('/', (req, res) => {
   // Public: No access?
 });
 
-// TODO: READ a user.
-usersRouter.get('/:id', (req, res) => {
-  // Admin: Can retrieve any accounts (public or private).
-  // Public: Can only retrieve publicly shown account details. Can also retrieve their own.
+// TODO: AUTH for getting a user.
+// Admin: Can view any accounts.
+// Public: Can only access their own.
+usersRouter.get('/:id', async (req, res) => {
+  const user = await getPet(req.params.id);
+  if (user[0] === undefined || user[0] === null) {
+    res.status(404).json({
+      Error: 'No user with this user_id exists',
+    });
+  } else {
+    res.status(200).json(user[0]);
+  }
 });
 
 // TODO: UPDATE a user (PUT and/or PATCH).
