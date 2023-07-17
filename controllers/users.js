@@ -51,10 +51,32 @@ usersRouter.post('/', async (req, res) => {
   return res.status(201).json(result);
 });
 
-// TODO: UPDATE a user (PUT and/or PATCH).
-usersRouter.put('/:id', (req, res) => {
-  // Admin: Can edit any account.
-  // Public: Can only edit their own account.
+// TODO: AUTH for updating (PUT) users.
+// Admin: Can update any accounts.
+// Public: Can only update their own.
+usersRouter.put('/:id', async (req, res) => {
+  const user = await getUser(req.params.id);
+  if (user[0] === undefined || user[0] === null) {
+    return res.status(404).json({
+      Error: 'No user with this user_id exists',
+    });
+  }
+
+  const [month, day, year] = req.body.birthdate.split('/');
+
+  const updatedUser = {
+    name: req.body.name,
+    birthdate: new Date(`${year}-${month}-${day}`).toISOString(),
+    email: req.body.email,
+    phoneNumber: req.body.phoneNumber,
+    admin: user[0].admin,
+  };
+
+  const entity = await putUser(updatedUser, req.params.id);
+
+  const result = entity.data;
+  result.id = entity.key.id;
+  return res.status(200).json(result);
 });
 
 // TODO: AUTH for deleting a user.

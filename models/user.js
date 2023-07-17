@@ -31,7 +31,17 @@ const getUser = async (id) => {
   return entity.map(ds.fromDatastore);
 };
 
-const putUser = async () => {};
+const putUser = async (updatedUser, id) => {
+  const key = datastore.key([USER, parseInt(id, 10)]);
+
+  const entity = {
+    key: key,
+    data: updatedUser,
+  };
+
+  await datastore.save(entity);
+  return entity;
+};
 
 const patchUser = async () => {};
 
