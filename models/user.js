@@ -1,9 +1,19 @@
 const ds = require('../utils/datastore');
 
-const User = 'User';
+const USER = 'User';
 const datastore = ds.datastore;
 
-const createUser = async () => {};
+const createUser = async (newUser) => {
+  const key = datastore.key(USER);
+
+  const entity = {
+    key: key,
+    data: newUser,
+  };
+
+  await datastore.save(entity);
+  return entity;
+};
 
 const getAllUsers = async () => {};
 
