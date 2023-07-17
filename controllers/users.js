@@ -32,10 +32,19 @@ usersRouter.put('/:id', (req, res) => {
   // Public: Can only edit their own account.
 });
 
-// TODO: DELETE a user.
-usersRouter.delete('/:id', (req, res) => {
-  // Admin: Can delete any account.
-  // Public: Can only delete their own account.
+// TODO: AUTH for deleting a user.
+// Admin: Can delete any accounts.
+// Public: Can only delete their own.
+usersRouter.delete('/:id', async (req, res) => {
+  const user = await getUser(req.params.id);
+  if (user[0] === undefined || user[0] === null) {
+    return res.status(404).json({
+      Error: 'No user with this user_id exists',
+    });
+  }
+
+  await deleteUser(req.params.id);
+  return res.status(204).end();
 });
 
 module.exports = usersRouter;

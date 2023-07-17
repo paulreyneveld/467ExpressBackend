@@ -25,7 +25,10 @@ const putUser = async () => {};
 
 const patchUser = async () => {};
 
-const deleteUser = async () => {};
+const deleteUser = async (id) => {
+  const key = datastore.key([USER, parseInt(id, 10)]);
+  await datastore.delete(key);
+};
 
 module.exports = {
   createUser,
