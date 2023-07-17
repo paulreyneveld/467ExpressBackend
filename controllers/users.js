@@ -26,6 +26,31 @@ usersRouter.get('/:id', async (req, res) => {
   }
 });
 
+// TODO: AUTH for creating users.
+// Admin: Can create accounts.
+// Public: Can create accounts.
+//         Create accounts via logging in (Auth0).
+//         Create accounts through application.
+usersRouter.post('/', async (req, res) => {
+  const [month, day, year] = req.body.birthdate.split('/');
+  const newUser = {
+    name: req.body.name,
+    // TODO: Data format for birthdate.
+    birthdate: new Date(`${year}-${month}-${day}`).toISOString(),
+    email: req.body.email,
+    phoneNumber: req.body.phoneNumber,
+    // TODO: Delete admin later.
+    //  Only an admin determines admin status.
+    admin: false,
+  };
+
+  const entity = await createUser(newUser);
+
+  const result = entity.data;
+  result.id = entity.key.id;
+  return res.status(201).json(result);
+});
+
 // TODO: UPDATE a user (PUT and/or PATCH).
 usersRouter.put('/:id', (req, res) => {
   // Admin: Can edit any account.
