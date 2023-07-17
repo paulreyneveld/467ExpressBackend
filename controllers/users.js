@@ -15,7 +15,7 @@ usersRouter.get('/', (req, res) => {
 // Admin: Can view any accounts.
 // Public: Can only access their own.
 usersRouter.get('/:id', async (req, res) => {
-  const user = await getPet(req.params.id);
+  const user = await getUser(req.params.id);
   if (user[0] === undefined || user[0] === null) {
     res.status(404).json({
       Error: 'No user with this user_id exists',
