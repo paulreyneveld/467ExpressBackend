@@ -32,9 +32,9 @@ usersRouter.put('/:id', async (req, res) => {
 
   const updatedUser = {
     name: req.body.name,
-    birthdate: req.body.birthdate,
+    birthdate: new Date(`${year}-${month}-${day}`).toISOString(),
     email: req.body.email,
-    phoneNumber: new Date(`${year}-${month}-${day}`).toISOString(),
+    phoneNumber: req.body.phoneNumber,
     admin: user[0].admin,
   };
 
