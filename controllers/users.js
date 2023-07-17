@@ -5,10 +5,8 @@ const { createUser, getAllUsers, getUser, putUser, patchUser, deleteUser } =
   userModel;
 
 // TODO: AUTH for getting all users.
-// Admin   (1) Can view all accounts
-//         (2) Can edit/delete here.
-// Public
-//         (1)No access to all users.
+// Admin: Can view all accounts.
+// Public: No access to all users.
 usersRouter.get('/', async (req, res) => {
   const users = await getAllUsers();
   return res.status(200).json(users);
