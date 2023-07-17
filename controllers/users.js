@@ -4,11 +4,12 @@ const userModel = require('../models/user');
 const { createUser, getAllUsers, getUser, putUser, patchUser, deleteUser } =
   userModel;
 
-// TODO: GET all users.
-usersRouter.get('/', (req, res) => {
-  res.send('testing users route');
-  // Admin: Can view all accounts. Can edit/delete here.
-  // Public: No access?
+// TODO: AUTH for getting all users.
+// Admin: Can view all accounts.
+// Public: No access to all users.
+usersRouter.get('/', async (req, res) => {
+  const users = await getAllUsers();
+  return res.status(200).json(users);
 });
 
 // TODO: READ a user.
