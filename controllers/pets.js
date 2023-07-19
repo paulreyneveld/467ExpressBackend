@@ -1,7 +1,40 @@
 const petsRouter = require('express').Router();
 const petModel = require('../models/pet');
+const { 
+  createPet, 
+  getAllPets, 
+  getPet, 
+  putPet, 
+  patchPet, 
+  deletePet 
+} = petModel;
+const { 
+  validateAccessToken, 
+  checkRequiredPermissions
+} = require('../middleware/auth0.middleware')
+const { errorHandler } = require('../middleware/error.middleware');
+const { ReadPetPermissions } = require('../permissions/pet-permissions');
+console.log(ReadPetPermissions);
 
-const { createPet, getAllPets, getPet, putPet, patchPet, deletePet } = petModel;
+
+// Test situation:
+petsRouter.get('/test', 
+    validateAccessToken,
+    checkRequiredPermissions([ReadPetPermissions.Read]),
+    errorHandler,
+    async (req, res) => {
+      return res.status(200).json({ "Response": "You have permission" });
+});
+
+// Test situation:
+petsRouter.get('/protected', 
+    validateAccessToken,
+    errorHandler,
+    async (req, res) => {
+      return res.status(200).json({ "Response": "You have permission" });
+});
+
+
 
 // TODO: GET all pets. Also look into pagination, filtering, and searching.
 petsRouter.get('/', async (req, res) => {
@@ -26,7 +59,7 @@ petsRouter.get('/:id', async (req, res) => {
 });
 
 // TODO: CREATE a pet.
-petsRouter.post('/', async (req, res) => {
+petsRouter.post('/', validateAccessToken, errorHandler, async (req, res) => {
   // Admin: Create a pet.
   // Public: No access.
   const newPet = {
