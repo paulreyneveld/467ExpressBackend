@@ -140,6 +140,14 @@ petsRouter.put('/:id', async (req, res) => {
     });
   }
 
+  if (
+    !config.availabilityOptions.includes(req.body.availability.toLowerCase())
+  ) {
+    return res.status(400).json({
+      Error: 'Invalid availability',
+    });
+  }
+
   const updatedPet = {
     typeAnimal: req.body.typeAnimal,
     breed: req.body.breed,
