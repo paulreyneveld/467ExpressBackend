@@ -94,6 +94,11 @@ petsRouter.post('/', async (req, res) => {
 });
 
 petsRouter.put('/:id', async (req, res) => {
+  const accepts = req.accepts(['application/json']);
+  if (!accepts) {
+    return res.status(406).json({ Error: 'Not Acceptable' });
+  }
+
   const pet = await getPet(req.params.id);
   if (pet[0] === undefined || pet[0] === null) {
     return res.status(404).json({
@@ -101,16 +106,50 @@ petsRouter.put('/:id', async (req, res) => {
     });
   }
 
+  const reqBodyKeys = Object.keys(req.body);
+  if (reqBodyKeys.length > 8) {
+    return res
+      .status(400)
+      .json({ Error: 'The request object has too many attributes' });
+  }
+
+  if (
+    req.body.typeAnimal === undefined ||
+    req.body.breed === undefined ||
+    req.body.description === undefined ||
+    req.body.goodWithAnimals === undefined ||
+    req.body.goodWithChildren === undefined ||
+    req.body.leashedAllTimes === undefined ||
+    req.body.availability === undefined
+  ) {
+    return res.status(400).json({
+      Error:
+        'The request object is missing at least one of the required attributes',
+    });
+  }
+
+  if (!config.validAnimalTypes.includes(req.body.typeAnimal.toLowerCase())) {
+    return res.status(400).json({
+      Error: 'Invalid animal type',
+    });
+  }
+
+  if (!config.validBreeds.includes(req.body.breed.toLowerCase())) {
+    return res.status(400).json({
+      Error: 'Invalid breed',
+    });
+  }
+
   const updatedPet = {
     typeAnimal: req.body.typeAnimal,
     breed: req.body.breed,
     description: req.body.description,
-    images: req.body.images,
+    images: req.body.images ? req.body.images : pet[0].images,
     goodWithAnimals: req.body.goodWithAnimals,
     goodWithChildren: req.body.goodWithChildren,
     leashedAllTimes: req.body.leashedAllTimes,
-    availability: req.body.availability,
-    creationDate: pet.creationDate,
+    availability: req.body.availability.toLowerCase(),
+    creationDate: pet[0].creationDate,
   };
 
   const entity = await putPet(updatedPet, req.params.id);
