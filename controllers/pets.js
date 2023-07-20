@@ -160,10 +160,49 @@ petsRouter.put('/:id', async (req, res) => {
 });
 
 petsRouter.patch('/:id', async (req, res) => {
+  const accepts = req.accepts(['application/json']);
+  if (!accepts) {
+    return res.status(406).json({ Error: 'Not Acceptable' });
+  }
+
   const pet = await getPet(req.params.id);
   if (pet[0] === undefined || pet[0] === null) {
     return res.status(404).json({
       Error: 'No pet with this pet_id exists',
+    });
+  }
+
+  const reqBodyKeys = Object.keys(req.body);
+  if (reqBodyKeys.length > 8) {
+    return res
+      .status(400)
+      .json({ Error: 'The request object has too many attributes' });
+  }
+
+  if (
+    req.body.typeAnimal &&
+    !config.validAnimalTypes.includes(req.body.typeAnimal.toLowerCase())
+  ) {
+    return res.status(400).json({
+      Error: 'Invalid animal type',
+    });
+  }
+
+  if (
+    req.body.breed &&
+    !config.validBreeds.includes(req.body.breed.toLowerCase())
+  ) {
+    return res.status(400).json({
+      Error: 'Invalid breed',
+    });
+  }
+
+  if (
+    req.body.availability &&
+    !config.availabilityOptions.includes(req.body.availability.toLowerCase())
+  ) {
+    return res.status(400).json({
+      Error: 'Invalid availability',
     });
   }
 
