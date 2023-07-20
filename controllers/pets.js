@@ -1,5 +1,6 @@
 const petsRouter = require('express').Router();
 const petModel = require('../models/pet');
+const config = require('../utils/config');
 
 const { createPet, getAllPets, getPet, putPet, patchPet, deletePet } = petModel;
 
@@ -26,14 +27,58 @@ petsRouter.get('/:id', async (req, res) => {
 });
 
 // TODO: CREATE a pet.
+// Admin: Create a pet.
+// Public: No access.
 petsRouter.post('/', async (req, res) => {
-  // Admin: Create a pet.
-  // Public: No access.
+  const accepts = req.accepts(['application/json']);
+  if (!accepts) {
+    return res.status(406).json({ Error: 'Not Acceptable' });
+  }
+
+  if (req.get('content-type') !== 'application/json') {
+    return res
+      .status(415)
+      .json({ Error: 'Server only accepts application/json' });
+  }
+
+  const reqBodyKeys = Object.keys(req.body);
+  if (reqBodyKeys.length > 7) {
+    return res
+      .status(400)
+      .json({ Error: 'The request object has too many attributes' });
+  }
+
+  if (
+    req.body.typeAnimal === undefined ||
+    req.body.breed === undefined ||
+    req.body.description === undefined ||
+    req.body.goodWithAnimals === undefined ||
+    req.body.goodWithChildren === undefined ||
+    req.body.leashedAllTimes === undefined
+  ) {
+    return res.status(400).json({
+      Error:
+        'The request object is missing at least one of the required attributes',
+    });
+  }
+
+  if (!config.validAnimalTypes.includes(req.body.typeAnimal.toLowerCase())) {
+    return res.status(400).json({
+      Error: 'Invalid animal type',
+    });
+  }
+
+  if (!config.validBreeds.includes(req.body.breed.toLowerCase())) {
+    return res.status(400).json({
+      Error: 'Invalid breed',
+    });
+  }
+
   const newPet = {
-    typeAnimal: req.body.typeAnimal,
-    breed: req.body.breed,
+    typeAnimal: req.body.typeAnimal.toLowerCase(),
+    breed: req.body.breed.toLowerCase(),
     description: req.body.description,
-    images: req.body.images,
+    images: req.body.images ? req.body.images : [],
     goodWithAnimals: req.body.goodWithAnimals,
     goodWithChildren: req.body.goodWithChildren,
     leashedAllTimes: req.body.leashedAllTimes,
