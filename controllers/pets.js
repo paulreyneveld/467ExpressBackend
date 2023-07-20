@@ -4,18 +4,18 @@ const config = require('../utils/config');
 
 const { createPet, getAllPets, getPet, putPet, patchPet, deletePet } = petModel;
 
-// TODO: GET all pets. Also look into pagination, filtering, and searching.
+// TODO: AUTH
+// Admin - View all editable pets.
+// Public - View all read-only pets.
 petsRouter.get('/', async (req, res) => {
-  // Admin: View all pets. Can add/edit/delete here.
-  // Public: View all pets (read-only).
   const pets = await getAllPets();
   return res.status(200).json(pets);
 });
 
-// TODO: GET a pet.
+// TODO: AUTH
+// Admin - View an editable pet.
+// Public - View a pet (restricted to only adoption/cancelation).
 petsRouter.get('/:id', async (req, res) => {
-  // Admin: View a pet. Can edit/delete.
-  // Public: View a pet. Can only adopt/cancel.
   const pet = await getPet(req.params.id);
   if (pet[0] === undefined || pet[0] === null) {
     res.status(404).json({
@@ -26,7 +26,7 @@ petsRouter.get('/:id', async (req, res) => {
   }
 });
 
-// TODO: CREATE a pet.
+// TODO: AUTH
 // Admin: Create a pet.
 // Public: No access.
 petsRouter.post('/', async (req, res) => {
@@ -93,6 +93,9 @@ petsRouter.post('/', async (req, res) => {
   return res.status(201).json(result);
 });
 
+// TODO: AUTH
+// Admin - Can edit any pet.
+// Public - Can only change availability: Available -> Adopted, Adopted -> Available
 petsRouter.put('/:id', async (req, res) => {
   const accepts = req.accepts(['application/json']);
   if (!accepts) {
@@ -167,6 +170,9 @@ petsRouter.put('/:id', async (req, res) => {
   return res.status(200).json(result);
 });
 
+// TODO: AUTH
+// Admin - Can edit any pet.
+// Public - Can only change availability: Available -> Adopted, Adopted -> Available
 petsRouter.patch('/:id', async (req, res) => {
   const accepts = req.accepts(['application/json']);
   if (!accepts) {
@@ -243,6 +249,9 @@ petsRouter.patch('/:id', async (req, res) => {
   return res.status(200).json(result);
 });
 
+// TODO: AUTH
+// Admin - Can delete any pet.
+// Public - No access.
 petsRouter.delete('/:id', async (req, res) => {
   const pet = await getPet(req.params.id);
   if (pet[0] === undefined || pet[0] === null) {
