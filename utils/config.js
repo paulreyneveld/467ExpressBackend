@@ -3,16 +3,15 @@ const PORT = process.env.PORT || 3001;
 const validAnimalTypes = ['dog', 'cat', 'other'];
 const validBreeds = [
   'german shepherd',
-  'Labrador Retriever',
-  'German Shepherd',
-  'Golden Retriever',
-  'Bulldog',
-  'Poodle',
-  'Beagle',
-  'Rottweiler',
-  'Yorkshire Terrier',
-  'Dachshund',
-  'Boxer',
+  'labrador retriever',
+  'golden retriever',
+  'bulldog',
+  'poodle',
+  'beagle',
+  'rottweiler',
+  'yorkshire terrier',
+  'dachshund',
+  'boxer',
   'other'
 ];
 const availabilityOptions = [
