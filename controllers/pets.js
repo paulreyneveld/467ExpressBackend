@@ -1,8 +1,34 @@
 const petsRouter = require('express').Router();
 const petModel = require('../models/pet');
-const config = require('../utils/config');
-
 const { createPet, getAllPets, getPet, putPet, patchPet, deletePet } = petModel;
+const {
+  validateAccessToken,
+  checkRequiredPermissions,
+} = require('../middleware/auth0.middleware');
+const { errorHandler } = require('../middleware/error.middleware');
+const { ReadPetPermissions } = require('../permissions/pet-permissions');
+console.log(ReadPetPermissions);
+
+// Test situation:
+petsRouter.get(
+  '/test',
+  validateAccessToken,
+  checkRequiredPermissions([ReadPetPermissions.Read]),
+  errorHandler,
+  async (req, res) => {
+    return res.status(200).json({ Response: 'You have permission' });
+  },
+);
+
+// Test situation:
+petsRouter.get(
+  '/protected',
+  validateAccessToken,
+  errorHandler,
+  async (req, res) => {
+    return res.status(200).json({ Response: 'You have permission' });
+  },
+);
 
 // TODO: AUTH
 // Admin - View all editable pets.
@@ -29,7 +55,7 @@ petsRouter.get('/:id', async (req, res) => {
 // TODO: AUTH
 // Admin: Create a pet.
 // Public: No access.
-petsRouter.post('/', async (req, res) => {
+petsRouter.post('/', validateAccessToken, errorHandler, async (req, res) => {
   const accepts = req.accepts(['application/json']);
   if (!accepts) {
     return res.status(406).json({ Error: 'Not Acceptable' });
