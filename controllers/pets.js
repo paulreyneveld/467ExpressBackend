@@ -7,6 +7,7 @@ const {
 } = require('../middleware/auth0.middleware');
 const { errorHandler } = require('../middleware/error.middleware');
 const { ReadPetPermissions } = require('../permissions/pet-permissions');
+const config = require('../utils/config');
 console.log(ReadPetPermissions);
 
 // Test situation:
