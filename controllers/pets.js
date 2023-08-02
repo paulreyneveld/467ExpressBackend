@@ -10,6 +10,20 @@ const { ReadPetPermissions } = require('../permissions/pet-permissions');
 const config = require('../utils/config');
 console.log(ReadPetPermissions);
 
+const { Storage } = require('@google-cloud/storage');
+const storage = new Storage();
+const multer = require('multer');
+
+// const upload = multer();
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: 5 * 1024 * 1024
+  }
+});
+
+const bucket = storage.bucket('example-bucket-for-demo-purposes');
+
 // Test situation:
 petsRouter.get(
   '/test',
@@ -56,50 +70,76 @@ petsRouter.get('/:id', async (req, res) => {
 // TODO: AUTH
 // Admin: Create a pet.
 // Public: No access.
-petsRouter.post('/', validateAccessToken, errorHandler, async (req, res) => {
-  const accepts = req.accepts(['application/json']);
-  if (!accepts) {
-    return res.status(406).json({ Error: 'Not Acceptable' });
+petsRouter.post('/', upload.single('file'), validateAccessToken, errorHandler, async (req, res) => {
+  console.log('reached backend');
+
+  // const accepts = req.accepts(['multipart/form-data']);
+  // if (!accepts) {
+  //   return res.status(406).json({ Error: 'Not Acceptable' });
+  // }
+
+  // if (req.get('content-type') !== 'multipart/form-data') {
+  //   return res
+  //     .status(415)
+  //     .json({ Error: 'Server only accepts multipart/form-data' });
+  // }
+
+  // const reqBodyKeys = Object.keys(req.body);
+  // if (reqBodyKeys.length > 7) {
+  //   return res
+  //     .status(400)
+  //     .json({ Error: 'The request object has too many attributes' });
+  // }
+
+  // if (
+  //   req.body.typeAnimal === undefined ||
+  //   req.body.breed === undefined ||
+  //   req.body.description === undefined ||
+  //   req.body.goodWithAnimals === undefined ||
+  //   req.body.goodWithChildren === undefined ||
+  //   req.body.leashedAllTimes === undefined
+  // ) {
+  //   return res.status(400).json({
+  //     Error:
+  //       'The request object is missing at least one of the required attributes',
+  //   });
+  // }
+
+  // if (!config.validAnimalTypes.includes(req.body.typeAnimal.toLowerCase())) {
+  //   return res.status(400).json({
+  //     Error: 'Invalid animal type',
+  //   });
+  // }
+
+  // if (!config.validBreeds.includes(req.body.breed.toLowerCase())) {
+  //   return res.status(400).json({
+  //     Error: 'Invalid breed',
+  //   });
+  // }
+
+  try {
+    if (req.file) {
+      // const randStrArr = new BigUint64Array(1);
+      // crypto.getRandomValues(randStrArr);
+
+      // const blob = bucket.file(String(randStrArr[0]) + req.file.originalname);
+      const blob = bucket.file(req.file.originalname);
+      const blobStream = blob.createWriteStream();
+
+      blobStream.on('finish', () => {
+        // res.status(200).send('https://storage.googleapis.com/' +
+        // bucket.name + '/' + blob.name);
+        console.log('https://storage.googleapis.com/' +
+        bucket.name + '/' + blob.name);
+      });
+      blobStream.end(req.file.buffer);
+    } else throw "error";
+  } catch (error) {
+    res.status(500).send(error);
   }
 
-  if (req.get('content-type') !== 'application/json') {
-    return res
-      .status(415)
-      .json({ Error: 'Server only accepts application/json' });
-  }
-
-  const reqBodyKeys = Object.keys(req.body);
-  if (reqBodyKeys.length > 7) {
-    return res
-      .status(400)
-      .json({ Error: 'The request object has too many attributes' });
-  }
-
-  if (
-    req.body.typeAnimal === undefined ||
-    req.body.breed === undefined ||
-    req.body.description === undefined ||
-    req.body.goodWithAnimals === undefined ||
-    req.body.goodWithChildren === undefined ||
-    req.body.leashedAllTimes === undefined
-  ) {
-    return res.status(400).json({
-      Error:
-        'The request object is missing at least one of the required attributes',
-    });
-  }
-
-  if (!config.validAnimalTypes.includes(req.body.typeAnimal.toLowerCase())) {
-    return res.status(400).json({
-      Error: 'Invalid animal type',
-    });
-  }
-
-  if (!config.validBreeds.includes(req.body.breed.toLowerCase())) {
-    return res.status(400).json({
-      Error: 'Invalid breed',
-    });
-  }
+  console.log('reached backend 2');
+  console.log(req.body);
 
   const newPet = {
     typeAnimal: req.body.typeAnimal.toLowerCase(),
@@ -112,6 +152,8 @@ petsRouter.post('/', validateAccessToken, errorHandler, async (req, res) => {
     availability: 'Available',
     creationDate: new Date().toISOString(),
   };
+
+  console.log(newPet);
 
   const entity = await createPet(newPet);
 
