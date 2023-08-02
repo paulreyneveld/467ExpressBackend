@@ -109,7 +109,7 @@ petsRouter.post('/', validateAccessToken, errorHandler, async (req, res) => {
     goodWithAnimals: req.body.goodWithAnimals,
     goodWithChildren: req.body.goodWithChildren,
     leashedAllTimes: req.body.leashedAllTimes,
-    availability: 'Available',
+    availability: 'available',
     creationDate: new Date().toISOString(),
   };
 
