@@ -133,9 +133,9 @@ petsRouter.post('/', upload.single('file'), validateAccessToken, errorHandler, a
     breed: req.body.breed.toLowerCase(),
     description: req.body.description,
     images: ['https://storage.googleapis.com/' + bucket.name + '/' + imageFileName],
-    goodWithAnimals: req.body.goodWithAnimals,
-    goodWithChildren: req.body.goodWithChildren,
-    leashedAllTimes: req.body.leashedAllTimes,
+    goodWithAnimals: (req.body.goodWithAnimals === 'true'),
+    goodWithChildren: (req.body.goodWithChildren === 'true'),
+    leashedAllTimes: (req.body.leashedAllTimes === 'true'),
     availability: 'available',
     creationDate: new Date().toISOString(),
   };
@@ -301,15 +301,9 @@ petsRouter.patch('/:id', upload.single('file'), validateAccessToken, errorHandle
       ? req.body.description
       : pet[0].description,
     images: req.file ? ['https://storage.googleapis.com/' + bucket.name + '/' + imageFileName] : pet[0].images,
-    goodWithAnimals: req.body.goodWithAnimals
-      ? req.body.goodWithAnimals
-      : pet[0].goodWithAnimals,
-    goodWithChildren: req.body.goodWithChildren
-      ? req.body.goodWithChildren
-      : pet[0].goodWithChildren,
-    leashedAllTimes: req.body.leashedAllTimes
-      ? req.body.leashedAllTimes
-      : pet[0].leashedAllTimes,
+    goodWithAnimals: (req.body.goodWithAnimals === 'true'),
+    goodWithChildren: (req.body.goodWithChildren === 'true'),
+    leashedAllTimes: (req.body.leashedAllTimes === 'true'),
     availability: req.body.availability
       ? req.body.availability
       : pet[0].availability,
