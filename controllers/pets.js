@@ -227,10 +227,17 @@ petsRouter.put('/:id', async (req, res) => {
 // TODO: AUTH
 // Admin - Can edit any pet.
 // Public - Can only change availability: Available -> Adopted, Adopted -> Available
-petsRouter.patch('/:id', async (req, res) => {
-  const accepts = req.accepts(['application/json']);
+petsRouter.patch('/:id', upload.single('file'), validateAccessToken, errorHandler, async (req, res) => {
+  
+  const accepts = req.accepts(['multipart/form-data']);
   if (!accepts) {
     return res.status(406).json({ Error: 'Not Acceptable' });
+  }
+
+  if (req.get('content-type').slice(0, 19) !== 'multipart/form-data') {
+    return res
+      .status(415)
+      .json({ Error: 'Server only accepts multipart/form-data' });
   }
 
   const pet = await getPet(req.params.id);
@@ -274,13 +281,26 @@ petsRouter.patch('/:id', async (req, res) => {
     });
   }
 
+  //TODO: Check Google Cloud Storage for uniqueness of file name.
+  //TODO: Delete previous image from Google Cloud Storage.
+  let imageFileName;
+  if (req.file) {
+    const randStrArr = new BigUint64Array(1);
+    crypto.getRandomValues(randStrArr);
+    imageFileName = String(randStrArr[0]) + req.file.originalname;
+
+    const blob = bucket.file(imageFileName);
+    const blobStream = blob.createWriteStream();
+    blobStream.end(req.file.buffer);
+  };
+
   const updatedPet = {
     typeAnimal: req.body.typeAnimal ? req.body.typeAnimal : pet[0].typeAnimal,
     breed: req.body.breed ? req.body.breed : pet[0].breed,
     description: req.body.description
       ? req.body.description
       : pet[0].description,
-    images: req.body.images ? req.body.images : pet[0].images,
+    images: req.file ? ['https://storage.googleapis.com/' + bucket.name + '/' + imageFileName] : pet[0].images,
     goodWithAnimals: req.body.goodWithAnimals
       ? req.body.goodWithAnimals
       : pet[0].goodWithAnimals,
@@ -293,7 +313,7 @@ petsRouter.patch('/:id', async (req, res) => {
     availability: req.body.availability
       ? req.body.availability
       : pet[0].availability,
-    creationDate: pet.creationDate,
+    creationDate: pet[0].creationDate,
   };
 
   const entity = await patchPet(updatedPet, req.params.id);
