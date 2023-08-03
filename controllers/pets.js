@@ -149,7 +149,7 @@ petsRouter.post('/', upload.single('file'), validateAccessToken, errorHandler, a
     goodWithAnimals: req.body.goodWithAnimals,
     goodWithChildren: req.body.goodWithChildren,
     leashedAllTimes: req.body.leashedAllTimes,
-    availability: 'Available',
+    availability: 'available',
     creationDate: new Date().toISOString(),
   };
 
