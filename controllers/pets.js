@@ -13,12 +13,12 @@ console.log(ReadPetPermissions);
 const { Storage } = require('@google-cloud/storage');
 const storage = new Storage();
 const multer = require('multer');
+const crypto = require('crypto');
 
-// const upload = multer();
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 5 * 1024 * 1024
+    fileSize: 10 * 1024 * 1024
   }
 });
 
@@ -71,89 +71,74 @@ petsRouter.get('/:id', async (req, res) => {
 // Admin: Create a pet.
 // Public: No access.
 petsRouter.post('/', upload.single('file'), validateAccessToken, errorHandler, async (req, res) => {
-  console.log('reached backend');
 
-  // const accepts = req.accepts(['multipart/form-data']);
-  // if (!accepts) {
-  //   return res.status(406).json({ Error: 'Not Acceptable' });
-  // }
-
-  // if (req.get('content-type') !== 'multipart/form-data') {
-  //   return res
-  //     .status(415)
-  //     .json({ Error: 'Server only accepts multipart/form-data' });
-  // }
-
-  // const reqBodyKeys = Object.keys(req.body);
-  // if (reqBodyKeys.length > 7) {
-  //   return res
-  //     .status(400)
-  //     .json({ Error: 'The request object has too many attributes' });
-  // }
-
-  // if (
-  //   req.body.typeAnimal === undefined ||
-  //   req.body.breed === undefined ||
-  //   req.body.description === undefined ||
-  //   req.body.goodWithAnimals === undefined ||
-  //   req.body.goodWithChildren === undefined ||
-  //   req.body.leashedAllTimes === undefined
-  // ) {
-  //   return res.status(400).json({
-  //     Error:
-  //       'The request object is missing at least one of the required attributes',
-  //   });
-  // }
-
-  // if (!config.validAnimalTypes.includes(req.body.typeAnimal.toLowerCase())) {
-  //   return res.status(400).json({
-  //     Error: 'Invalid animal type',
-  //   });
-  // }
-
-  // if (!config.validBreeds.includes(req.body.breed.toLowerCase())) {
-  //   return res.status(400).json({
-  //     Error: 'Invalid breed',
-  //   });
-  // }
-
-  try {
-    if (req.file) {
-      // const randStrArr = new BigUint64Array(1);
-      // crypto.getRandomValues(randStrArr);
-
-      // const blob = bucket.file(String(randStrArr[0]) + req.file.originalname);
-      const blob = bucket.file(req.file.originalname);
-      const blobStream = blob.createWriteStream();
-
-      blobStream.on('finish', () => {
-        // res.status(200).send('https://storage.googleapis.com/' +
-        // bucket.name + '/' + blob.name);
-        console.log('https://storage.googleapis.com/' +
-        bucket.name + '/' + blob.name);
-      });
-      blobStream.end(req.file.buffer);
-    } else throw "error";
-  } catch (error) {
-    res.status(500).send(error);
+  const accepts = req.accepts(['multipart/form-data']);
+  if (!accepts) {
+    return res.status(406).json({ Error: 'Not Acceptable' });
   }
 
-  console.log('reached backend 2');
-  console.log(req.body);
+  if (req.get('content-type').slice(0, 19) !== 'multipart/form-data') {
+    return res
+      .status(415)
+      .json({ Error: 'Server only accepts multipart/form-data' });
+  }
+
+  const reqBodyKeys = Object.keys(req.body);
+  if (reqBodyKeys.length > 7) {
+    return res
+      .status(400)
+      .json({ Error: 'The request object has too many attributes' });
+  }
+
+  if (
+    req.body.typeAnimal === undefined ||
+    req.body.breed === undefined ||
+    req.body.description === undefined ||
+    req.body.goodWithAnimals === undefined ||
+    req.body.goodWithChildren === undefined ||
+    req.body.leashedAllTimes === undefined
+  ) {
+    return res.status(400).json({
+      Error:
+        'The request object is missing at least one of the required attributes',
+    });
+  }
+
+  if (!config.validAnimalTypes.includes(req.body.typeAnimal.toLowerCase())) {
+    return res.status(400).json({
+      Error: 'Invalid animal type',
+    });
+  }
+
+  if (!config.validBreeds.includes(req.body.breed.toLowerCase())) {
+    return res.status(400).json({
+      Error: 'Invalid breed',
+    });
+  }
+
+  // TODO: Check Google Cloud Storage for uniqueness of file name.
+  let imageFileName;
+  if (req.file) {
+    const randStrArr = new BigUint64Array(1);
+    crypto.getRandomValues(randStrArr);
+    imageFileName = String(randStrArr[0]) + req.file.originalname;
+
+    const blob = bucket.file(imageFileName);
+    const blobStream = blob.createWriteStream();
+    blobStream.end(req.file.buffer);
+  };
 
   const newPet = {
     typeAnimal: req.body.typeAnimal.toLowerCase(),
     breed: req.body.breed.toLowerCase(),
     description: req.body.description,
-    images: req.body.images ? req.body.images : [],
+    images: ['https://storage.googleapis.com/' + bucket.name + '/' + imageFileName],
     goodWithAnimals: req.body.goodWithAnimals,
     goodWithChildren: req.body.goodWithChildren,
     leashedAllTimes: req.body.leashedAllTimes,
     availability: 'available',
     creationDate: new Date().toISOString(),
   };
-
-  console.log(newPet);
 
   const entity = await createPet(newPet);
 
