@@ -116,12 +116,27 @@ petsRouter.post('/', upload.single('file'), validateAccessToken, errorHandler, a
     });
   }
 
-  // TODO: Check Google Cloud Storage for uniqueness of file name.
   let imageFileName;
   if (req.file) {
-    const randStrArr = new BigUint64Array(1);
-    crypto.getRandomValues(randStrArr);
-    imageFileName = String(randStrArr[0]) + req.file.originalname;
+
+    // Check Google Cloud Storage for uniqueness of file name.
+    const [files] = await bucket.getFiles();
+
+    for (;;) {
+      let randStrArr = new BigUint64Array(1);
+      crypto.getRandomValues(randStrArr);
+      imageFileName = String(randStrArr[0]) + req.file.originalname;
+
+      let uniqueFlag = 1;
+      for (const file of files) {
+        if (imageFileName === file.name) {
+          uniqueFlag = 0;
+          break;
+        };
+      };
+
+      if (uniqueFlag) break;
+    };
 
     const blob = bucket.file(imageFileName);
     const blobStream = blob.createWriteStream();
@@ -281,13 +296,28 @@ petsRouter.patch('/:id', upload.single('file'), validateAccessToken, errorHandle
     });
   }
 
-  //TODO: Check Google Cloud Storage for uniqueness of file name.
   //TODO: Delete previous image from Google Cloud Storage.
   let imageFileName;
   if (req.file) {
-    const randStrArr = new BigUint64Array(1);
-    crypto.getRandomValues(randStrArr);
-    imageFileName = String(randStrArr[0]) + req.file.originalname;
+
+    // Check Google Cloud Storage for uniqueness of file name.
+    const [files] = await bucket.getFiles();
+
+    for (;;) {
+      let randStrArr = new BigUint64Array(1);
+      crypto.getRandomValues(randStrArr);
+      imageFileName = String(randStrArr[0]) + req.file.originalname;
+
+      let uniqueFlag = 1;
+      for (const file of files) {
+        if (imageFileName === file.name) {
+          uniqueFlag = 0;
+          break;
+        };
+      };
+
+      if (uniqueFlag) break;
+    };
 
     const blob = bucket.file(imageFileName);
     const blobStream = blob.createWriteStream();
