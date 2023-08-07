@@ -1,6 +1,6 @@
 const petsRouter = require('express').Router();
 const petModel = require('../models/pet');
-const { createPet, getAllPets, getPet, putPet, patchPet, deletePet } = petModel;
+const { createPet, getAllPets, getPet, putPet, patchPet, deletePet, uploadPetImage, deletePetImage } = petModel;
 const {
   validateAccessToken,
   checkRequiredPermissions,
@@ -10,19 +10,13 @@ const { ReadPetPermissions } = require('../permissions/pet-permissions');
 const config = require('../utils/config');
 console.log(ReadPetPermissions);
 
-const { Storage } = require('@google-cloud/storage');
-const storage = new Storage();
 const multer = require('multer');
-const crypto = require('crypto');
-
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
     fileSize: 10 * 1024 * 1024
   }
 });
-
-const bucket = storage.bucket('example-bucket-for-demo-purposes');
 
 // Test situation:
 petsRouter.get(
@@ -116,38 +110,16 @@ petsRouter.post('/', upload.single('file'), validateAccessToken, errorHandler, a
     });
   }
 
-  let imageFileName;
+  let imageURL;
   if (req.file) {
-
-    // Check Google Cloud Storage for uniqueness of file name.
-    const [files] = await bucket.getFiles();
-
-    for (;;) {
-      let randStrArr = new BigUint64Array(1);
-      crypto.getRandomValues(randStrArr);
-      imageFileName = String(randStrArr[0]) + req.file.originalname;
-
-      let uniqueFlag = 1;
-      for (const file of files) {
-        if (imageFileName === file.name) {
-          uniqueFlag = 0;
-          break;
-        };
-      };
-
-      if (uniqueFlag) break;
-    };
-
-    const blob = bucket.file(imageFileName);
-    const blobStream = blob.createWriteStream();
-    blobStream.end(req.file.buffer);
+    imageURL = await uploadPetImage(req.file);
   };
 
   const newPet = {
     typeAnimal: req.body.typeAnimal.toLowerCase(),
     breed: req.body.breed.toLowerCase(),
     description: req.body.description,
-    images: ['https://storage.googleapis.com/' + bucket.name + '/' + imageFileName],
+    images: [imageURL],
     goodWithAnimals: (req.body.goodWithAnimals === 'true'),
     goodWithChildren: (req.body.goodWithChildren === 'true'),
     leashedAllTimes: (req.body.leashedAllTimes === 'true'),
@@ -296,32 +268,10 @@ petsRouter.patch('/:id', upload.single('file'), validateAccessToken, errorHandle
     });
   }
 
-  //TODO: Delete previous image from Google Cloud Storage.
-  let imageFileName;
+  let imageURL;
   if (req.file) {
-
-    // Check Google Cloud Storage for uniqueness of file name.
-    const [files] = await bucket.getFiles();
-
-    for (;;) {
-      let randStrArr = new BigUint64Array(1);
-      crypto.getRandomValues(randStrArr);
-      imageFileName = String(randStrArr[0]) + req.file.originalname;
-
-      let uniqueFlag = 1;
-      for (const file of files) {
-        if (imageFileName === file.name) {
-          uniqueFlag = 0;
-          break;
-        };
-      };
-
-      if (uniqueFlag) break;
-    };
-
-    const blob = bucket.file(imageFileName);
-    const blobStream = blob.createWriteStream();
-    blobStream.end(req.file.buffer);
+    imageURL = await uploadPetImage(req.file);
+    await deletePetImage(pet[0].images[0]);
   };
 
   const updatedPet = {
@@ -330,7 +280,7 @@ petsRouter.patch('/:id', upload.single('file'), validateAccessToken, errorHandle
     description: req.body.description
       ? req.body.description
       : pet[0].description,
-    images: req.file ? ['https://storage.googleapis.com/' + bucket.name + '/' + imageFileName] : pet[0].images,
+    images: req.file ? [imageURL] : pet[0].images,
     goodWithAnimals: (req.body.goodWithAnimals === 'true'),
     goodWithChildren: (req.body.goodWithChildren === 'true'),
     leashedAllTimes: (req.body.leashedAllTimes === 'true'),
@@ -359,6 +309,7 @@ petsRouter.delete('/:id', async (req, res) => {
   }
 
   await deletePet(req.params.id);
+  await deletePetImage(pet[0].images[0]);
   return res.status(204).end();
 });
 
