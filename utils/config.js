@@ -20,10 +20,16 @@ const availabilityOptions = [
   'pending',
   'adopted',
 ];
+const validImageFileTypes = [
+  'image/png',
+  'image/jpg',
+  'image/jpeg',
+];
 
 module.exports = {
   PORT,
   validAnimalTypes,
   validBreeds,
   availabilityOptions,
+  validImageFileTypes,
 };

@@ -77,6 +77,10 @@ petsRouter.post('/', upload.single('file'), validateAccessToken, errorHandler, a
       .json({ Error: 'Server only accepts multipart/form-data' });
   }
 
+  if (!req.file) {
+    return res.status(400).json({ Error: 'The request object is missing the image file'})
+  }
+
   const reqBodyKeys = Object.keys(req.body);
   if (reqBodyKeys.length > 7) {
     return res
@@ -110,10 +114,14 @@ petsRouter.post('/', upload.single('file'), validateAccessToken, errorHandler, a
     });
   }
 
+  if (!config.validImageFileTypes.includes(req.file.mimetype)) {
+    return res.status(400).json({
+      Error: 'Invalid file type',
+    });
+  }
+
   let imageURL;
-  if (req.file) {
-    imageURL = await uploadPetImage(req.file);
-  };
+  imageURL = await uploadPetImage(req.file);
 
   const newPet = {
     typeAnimal: req.body.typeAnimal.toLowerCase(),
@@ -270,6 +278,13 @@ petsRouter.patch('/:id', upload.single('file'), validateAccessToken, errorHandle
 
   let imageURL;
   if (req.file) {
+
+    if (!config.validImageFileTypes.includes(req.file.mimetype)) {
+      return res.status(400).json({
+        Error: 'Invalid file type',
+      });
+    }
+  
     imageURL = await uploadPetImage(req.file);
     await deletePetImage(pet[0].images[0]);
   };
