@@ -116,12 +116,11 @@ petsRouter.post('/', upload.single('file'), validateAccessToken, errorHandler, a
 
   if (!config.validImageFileTypes.includes(req.file.mimetype)) {
     return res.status(400).json({
-      Error: 'Invalid file type',
+      Error: 'Invalid image file type',
     });
   }
 
-  let imageURL;
-  imageURL = await uploadPetImage(req.file);
+  const imageURL = await uploadPetImage(req.file);
 
   const newPet = {
     typeAnimal: req.body.typeAnimal.toLowerCase(),
