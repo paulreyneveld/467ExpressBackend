@@ -77,21 +77,11 @@ petsRouter.post('/', upload.single('file'), validateAccessToken, errorHandler, a
       .json({ Error: 'Server only accepts multipart/form-data' });
   }
 
-  if (!req.file) {
-    return res.status(400).json({ Error: 'The request object is missing the image file'})
-  }
-
-  const reqBodyKeys = Object.keys(req.body);
-  if (reqBodyKeys.length > 7) {
-    return res
-      .status(400)
-      .json({ Error: 'The request object has too many attributes' });
-  }
-
   if (
     req.body.typeAnimal === undefined ||
     req.body.breed === undefined ||
     req.body.description === undefined ||
+    req.file === undefined ||
     req.body.goodWithAnimals === undefined ||
     req.body.goodWithChildren === undefined ||
     req.body.leashedAllTimes === undefined
@@ -100,6 +90,13 @@ petsRouter.post('/', upload.single('file'), validateAccessToken, errorHandler, a
       Error:
         'The request object is missing at least one of the required attributes',
     });
+  }
+
+  const reqBodyKeys = Object.keys(req.body);
+  if (reqBodyKeys.length > 7) {
+    return res
+      .status(400)
+      .json({ Error: 'The request object has too many attributes' });
   }
 
   if (!config.validAnimalTypes.includes(req.body.typeAnimal.toLowerCase())) {
