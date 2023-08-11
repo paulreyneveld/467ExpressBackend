@@ -70,9 +70,8 @@ const uploadPetImage = async (imageFile) => {
 
   let imageFileName;
   for (;;) {
-    let randStrArr = new BigUint64Array(1);
-    crypto.getRandomValues(randStrArr);
-    imageFileName = String(randStrArr[0]) + imageFile.originalname;
+    let randStr = crypto.randomBytes(20).toString('hex');
+    imageFileName = randStr + imageFile.originalname;
 
     let uniqueFlag = 1;
     for (const file of files) {

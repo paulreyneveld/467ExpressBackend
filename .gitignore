@@ -1,4 +1,5 @@
-node_modules
+.gcloudignore
 .DS_Store
-build
 .env
+node_modules
+build

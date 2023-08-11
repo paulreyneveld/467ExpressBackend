@@ -1,0 +1,8 @@
+runtime: nodejs16
+service: server
+entrypoint: node index.js
+env_variables:
+  PORT: 8080
+  CLIENT_ORIGIN_URL: "https://cs467-capstone-392703.uw.r.appspot.com"
+  AUTH0_AUDIENCE: "https://pet-adoption467.com"
+  AUTH0_DOMAIN: "pet-adoption467.us.auth0.com"
