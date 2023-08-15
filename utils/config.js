@@ -12,7 +12,8 @@ const validBreeds = [
   'yorkie',
   'dachshund',
   'boxer',
-  'mixed breed', 
+  'mixed dog breed',
+  'other dog breed',
   'siamese',
   'persian',
   'maine coon',
@@ -22,6 +23,9 @@ const validBreeds = [
   'birman',
   'himalayan',
   'american shorthair',
+  'mixed cat breed',
+  'other cat breed',
+  'other',
 ];
 const availabilityOptions = [
   'available',
