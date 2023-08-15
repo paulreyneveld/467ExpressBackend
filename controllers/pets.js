@@ -81,6 +81,7 @@ petsRouter.post('/', upload.single('file'), validateAccessToken, errorHandler, a
     req.body.typeAnimal === undefined ||
     req.body.breed === undefined ||
     req.body.description === undefined ||
+    req.body.description === "" ||
     req.file === undefined ||
     req.body.goodWithAnimals === undefined ||
     req.body.goodWithChildren === undefined ||
